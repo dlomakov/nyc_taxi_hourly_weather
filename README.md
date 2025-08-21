@@ -49,8 +49,8 @@ Hive (Parquet, dwh.fact_taxi_hourly)
 │   └── yellow_tripdata_2025-01.parquet\
 │   └── taxi_zone_lookup.csv\
 │   └── nyc_weather_jan_2025.csv\
-├── build.sbt&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;# конфиг сборки\
-├── project/&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;\
+├── build.sbt&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;# конфиг сборки\
+├── project/\
 │   └── build.properties&emsp;&emsp;&emsp;# информация о версии sbt\
 ├── NycTaxiHourlyJob.scala&emsp;&emsp;&emsp;# основной Spark job\
 ├── ddl.hql&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;# Скрипты HiveQL для создания БД / таблицы под витрину\
