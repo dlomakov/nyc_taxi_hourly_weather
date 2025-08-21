@@ -12,11 +12,11 @@ object NycTaxiHourlyJob {
     import spark.implicits._
 
     // Параметры запуска
-    val tripsPath   = sys.env.getOrElse("TRIPS_PATH", "hdfs:///data/tlc/yellow/2024/*")
+    val tripsPath   = sys.env.getOrElse("TRIPS_PATH", "hdfs:///data/tlc/yellow/yellow_tripdata_2025-01.parquet")
     val zonesPath   = sys.env.getOrElse("ZONES_PATH", "hdfs:///data/tlc/taxi_zone_lookup.csv")
     val weatherPath = sys.env.getOrElse("WEATHER_PATH","hdfs:///data/weather/nyc_hourly.parquet")
-    val fromDate    = sys.env.getOrElse("FROM_DT","2024-01-01")
-    val toDate      = sys.env.getOrElse("TO_DT","2024-12-31")
+    val fromDate    = sys.env.getOrElse("FROM_DT","2025-01-01")
+    val toDate      = sys.env.getOrElse("TO_DT","2025-01-31")
 
     spark.sql("SET hive.exec.dynamic.partition=true")
     spark.sql("SET hive.exec.dynamic.partition.mode=nonstrict")
@@ -48,9 +48,8 @@ object NycTaxiHourlyJob {
           "cast(payment_type as int) as payment_type"
         )
         .where(col("pickup_ts").between(lit(fromDate), lit(toDate)))
-
-    // Если у вас CSV — замените блок выше на чтение CSV и to_timestamp()
-
+	
+    // Очищаем данные, высчитываем время поездки
     val tripsClean = tripsRaw
       .withColumn("duration_min",
         (unix_timestamp($"dropoff_ts") - unix_timestamp($"pickup_ts")) / 60.0
@@ -63,6 +62,7 @@ object NycTaxiHourlyJob {
       .filter($"duration_min".between(1, 180) && $"trip_miles" > 0 && $"speed_kmh" < 120)
       .dropDuplicates("pickup_ts","dropoff_ts","pu_location_id","do_location_id","total_amount")
 
+    // Обогащаем данные, парсим информацию о времени и добавляем зоны из другого датасета
     val tripsEnriched = tripsClean
       .withColumn("pickup_hour", date_trunc("hour", $"pickup_ts"))
       .withColumn("dt", to_date($"pickup_ts"))
@@ -76,8 +76,10 @@ object NycTaxiHourlyJob {
         col("precip_mm").cast("double")
       )
 
+    // Добавляем к нашим данным о поездках и зонах информацию о погоде
     val withWeather = tripsEnriched.join(weather, Seq("pickup_hour"), "left")
 
+    // Проводим почасовую агрегацию
     val hourlyAgg = withWeather
       .groupBy($"zone_id", $"borough", $"pickup_hour", $"dt")
       .agg(
@@ -92,25 +94,26 @@ object NycTaxiHourlyJob {
         sum($"precip_mm").as("precip_mm")
       )
 
-    // (опция) rolling 7d среднее по часам
+    // Скользящим окном в 7d высчитываем среднее по часам
     val wRolling = Window.partitionBy($"zone_id").orderBy($"pickup_hour").rowsBetween(168, 0)
     val hourlyWithRolling = hourlyAgg
       .withColumn("trips_cnt_roll7d", avg($"trips_cnt").over(wRolling))
-// Запись в Hive (партиционирование по d t)
+
+    // Запись в Hive (партиционирование по dt)
     hourlyWithRolling
       .select(
-        $"zone_id",$"borough",$"pickup_hour",
-        $"trips_cnt",$"avg_duration_min",$"p50_duration_min",$"p95_duration_min",
-        $"avg_speed_kmh",$"revenue_usd",$"cash_share",
-        $"temp_c",$"precip_mm",
-        $"dt".cast("string").as("dt")
-      )
-      .write
-      .mode("append")
-      .format("hive")
-      .insertInto("dwh.fact_taxi_hourly")
+        	$"zone_id",$"borough",$"pickup_hour",
+        	$"trips_cnt",$"avg_duration_min",$"p50_duration_min",$"p95_duration_min",
+        	$"avg_speed_kmh",$"revenue_usd",$"cash_share",
+        	$"temp_c",$"precip_mm",
+        	$"dt".cast("string").as("dt")
+      	)
+      	.write
+      	.mode("append")
+      	.format("hive")
+     	.insertInto("dwh.fact_taxi_hourly")
 
-    // (опция) Топ‑10 зон по дням
+    // Высчитываем Топ‑10 зон по дням
     val daily = hourlyAgg.groupBy($"zone_id", $"borough", $"dt")
       .agg(sum($"trips_cnt").as("trips_day"))
     val topDaily = daily
