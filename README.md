@@ -45,16 +45,16 @@ Hive (Parquet, dwh.fact_taxi_hourly)
     * FROM_DT / TO_DT — период анализа (например, 2024-01-01)
 ## 🛠️ Структура проекта
 .\
-├── data/&emsp;&emsp;&emsp;# датасеты\
-│   └── yellow_tripdata_2025-01.parquet  \
-│   └── taxi_zone_lookup.csv             \
-│   └── nyc_weather_jan_2025.csv         \
-├── build.sbt                            # конфиг сборки\
-├── project/                             \
-│   └── build.properties                 # информация о версии sbt\
-├── NycTaxiHourlyJob.scala               # основной Spark job\
-├── ddl.hql                              # Скрипты HiveQL для создания БД / таблицы под витрину\
-├── run.sh                               # Пример запуска собранной job-ы\
+├── data/&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;# датасеты\
+│   └── yellow_tripdata_2025-01.parquet&emsp;\
+│   └── taxi_zone_lookup.csv&emsp;&emsp;&emsp;\
+│   └── nyc_weather_jan_2025.csv&emsp;&emsp;&emsp;\
+├── build.sbt&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;# конфиг сборки\
+├── project/&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;\
+│   └── build.properties&emsp;&emsp;&emsp;# информация о версии sbt\
+├── NycTaxiHourlyJob.scala&emsp;&emsp;&emsp;# основной Spark job\
+├── ddl.hql&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;# Скрипты HiveQL для создания БД / таблицы под витрину\
+├── run.sh&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;# Пример запуска собранной job-ы\
 └── README.md
 ## 👨‍🏫 Примеры метрик
   * Среднее время поездки в Манхэттене в час пик (17–19): ~12 мин
