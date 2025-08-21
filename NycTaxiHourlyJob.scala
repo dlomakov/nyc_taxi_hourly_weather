@@ -14,7 +14,7 @@ object NycTaxiHourlyJob {
     // Параметры запуска
     val tripsPath   = sys.env.getOrElse("TRIPS_PATH", "hdfs:///data/tlc/yellow/yellow_tripdata_2025-01.parquet")
     val zonesPath   = sys.env.getOrElse("ZONES_PATH", "hdfs:///data/tlc/taxi_zone_lookup.csv")
-    val weatherPath = sys.env.getOrElse("WEATHER_PATH","hdfs:///data/weather/nyc_hourly.parquet")
+    val weatherPath = sys.env.getOrElse("WEATHER_PATH","hdfs:///data/weather/nyc_weather_jan_2025.csv")
     val fromDate    = sys.env.getOrElse("FROM_DT","2025-01-01")
     val toDate      = sys.env.getOrElse("TO_DT","2025-01-31")
 
@@ -32,7 +32,7 @@ object NycTaxiHourlyJob {
         col("Zone").as("zone_name")
       )
 
-    // Унифицированный ридер поездок (CSV или Parquet)
+    // Чтение поездок
     val tripsRaw =
       spark.read.format("parquet").load(tripsPath)
         .option("basePath", tripsPath)
@@ -69,11 +69,12 @@ object NycTaxiHourlyJob {
       .join(zones, $"pu_location_id" === zones("zone_id"), "left")
 
     // Погода должна иметь столбец hour_ts (TIMESTAMP, начало часа)
-    val weather = spark.read.format("parquet").load(weatherPath)
+    val weather = spark.read.option("header","true").option("inferSchema","true")
+      .csv(weatherPath)
       .select(
-        col("hour_ts").as("pickup_hour"),
-        col("temp_c").cast("double"),
-        col("precip_mm").cast("double")
+        col("time").as("pickup_hour"),
+        col("temperature").cast("double").as("temp_c"),
+        col("amount_of_precipitation").cast("double").as("precip_mm")
       )
 
     // Добавляем к нашим данным о поездках и зонах информацию о погоде
