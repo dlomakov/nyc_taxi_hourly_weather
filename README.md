@@ -45,10 +45,16 @@ Hive (Parquet, dwh.fact_taxi_hourly)
     * FROM_DT / TO_DT — период анализа (например, 2024-01-01)
 ## 🛠️ Структура проекта
 .\
-├── src/main/scala/NycTaxiHourlyJob.scala   # основной Spark job\
+├── data/								   # датасеты\
+│   └── yellow_tripdata_2025-01.parquet \
+│   └── taxi_zone_lookup.csv \
+│   └── plugins.sbt  \
 ├── build.sbt                               # конфиг сборки\
 ├── project/                                 \
-│   └── plugins.sbt                         # плагины (sbt-assembly)\
+│   └── build.properties                    # информация о версии sbt\
+├── NycTaxiHourlyJob.scala					# основной Spark job\
+├── ddl.hql 								# Скрипты HiveQL для создания БД / таблицы под витрину\
+├── run.sh									# Пример запуска собранной job-ы\
 └── README.md
 ## 👨‍🏫 Примеры метрик
   * Среднее время поездки в Манхэттене в час пик (17–19): ~12 мин
