@@ -45,10 +45,10 @@ Hive (Parquet, dwh.fact_taxi_hourly)
     * FROM_DT / TO_DT — период анализа (например, 2024-01-01)
 ## 🛠️ Структура проекта
 .\
-├── data/								                        # датасеты\
+├── data/&emsp;&emsp;&emsp;# датасеты\
 │   └── yellow_tripdata_2025-01.parquet  \
 │   └── taxi_zone_lookup.csv             \
-│   └── plugins.sbt                      \
+│   └── nyc_weather_jan_2025.csv         \
 ├── build.sbt                            # конфиг сборки\
 ├── project/                             \
 │   └── build.properties                 # информация о версии sbt\
