@@ -52,9 +52,9 @@ Hive (Parquet, dwh.fact_taxi_hourly)
 ├── build.sbt&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;# конфиг сборки\
 ├── project/\
 │   └── build.properties&emsp;&emsp;&emsp;&emsp;&emsp;# информация о версии sbt\
-├── NycTaxiHourlyJob.scala&emsp;&emsp;&emsp;# основной Spark job\
+├── NycTaxiHourlyJob.scala&emsp;&emsp;# основной Spark job\
 ├── ddl.hql&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;# Скрипты HiveQL для создания БД / таблицы под витрину\
-├── run.sh&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;# Пример запуска собранной job-ы\
+├── run.sh&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;# Пример запуска собранной job-ы\
 └── README.md
 ## 👨‍🏫 Примеры метрик
   * Среднее время поездки в Манхэттене в час пик (17–19): ~12 мин
